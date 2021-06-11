@@ -1,1 +1,1 @@
-# mc.cs260.xyz
+# project.cs260.xyz
