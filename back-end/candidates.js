@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 const express = require("express");
 const router = express.Router();
 
-const measures = require("./measures.js");
-const Measure = measures.model;
+const elections = require("./elections.js");
+const Election = elections.model;
 
 const candidateSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
-  measure: {
+  election: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Measure'
+    ref: 'Election'
   },
 });
 
@@ -31,16 +31,16 @@ router.post('/', async (req, res) => {
     });
   }
 
-  if (!req.body.measure) {
+  if (!req.body.election) {
     return res.status(400).send({
-      message: "candidates.js: invalid measure \"" + req.body.measure + "\""
+      message: "candidates.js: invalid election \"" + req.body.election + "\""
     });
   }
 
   let candidate = new Candidate({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
-    measure: req.body.measure,
+    election: req.body.election,
   });
 
   try {
@@ -57,7 +57,7 @@ router.post('/', async (req, res) => {
 router.get('/all', async (req, res) => {
   try {
     let candidates = await Candidate.find().sort({
-      measure: -1
+      election: -1
     });
     
     return res.send(candidates);
@@ -67,16 +67,16 @@ router.get('/all', async (req, res) => {
   }
 });
 
-// Get candidates by measure
-router.get('/byMeasure/:id', async (req, res) => {
+// Get candidates by election
+router.get('/byElection/:id', async (req, res) => {
   try {
-    let measure = await Measure.findOne({
+    let election = await Election.findOne({
       _id: req.params.id
     });
 
     let candidates = await Candidate.find({
-      measure: measure
-    }).populate('measure');
+      election: election
+    }).populate('election');
     
     return res.send(candidates);
   } catch (error) {

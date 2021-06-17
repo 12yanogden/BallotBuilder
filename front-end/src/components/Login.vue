@@ -4,19 +4,19 @@
     <form class="pure-form">
       <fieldset>
         <legend>Register for an account</legend>
-        <input placeholder="First Name" v-model="firstName">
-        <input placeholder="Last Name" v-model="lastName">
+        <input v-model="firstName" placeholder="First Name">
+        <input v-model="lastName" placeholder="Last Name">
       </fieldset>
       <fieldset>
-        <input placeholder="username" v-model="username">
-        <input type="password" placeholder="password" v-model="password">
+        <input v-model="username" placeholder="username">
+        <input v-model="password" type="password" placeholder="password">
       </fieldset>
       <fieldset class="center">
-        <button type="submit" class="button" id="registerButton" @click.prevent="register">Register</button>
+        <button type="submit" class="button" id="registrationButton" @click.prevent="register">Register</button>
       </fieldset>
     </form>
     <p v-if="error" class="error">{{error}}</p>
-    <form class="pure-form space-above">
+    <form class="space-above pure-form">
       <fieldset>
         <legend>Login</legend>
         <input placeholder="username" v-model="loginUsername">

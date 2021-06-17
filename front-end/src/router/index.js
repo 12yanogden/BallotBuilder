@@ -18,7 +18,7 @@ const routes = [
     component: Dashboard
   },
   {
-    path: '/ballot/:id',
+    path: '/ballot/:action/:id',
     name: 'ballot',
     component: Ballot
   },

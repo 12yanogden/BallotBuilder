@@ -1,19 +1,19 @@
 <template>
-<div id="ballotNew" class="col">
+<div id="ballotCreate" class="col">
   <div id="ballotFormWrapper" class="col">
-    <form v-if="!newBallot" class="pure-form form col">
+    <form class="pure-form form col">
       <h1>Create a new ballot</h1>
       <fieldset class="fieldSet">
-        <input id="titleInput" v-model="ballotName" placeholder="Ballot Title (eg Virgina District 29 Ballot 2021)"/>
+        <input id="titleInput" v-model="newBallot.name" placeholder="Ballot Title (eg Virgina District 29 Ballot 2021)"/>
       </fieldset>
       <div id="openCloseWrapper" class="col">
         <fieldset class="fieldSet row">
           <h3 class="inputLabel">Open date</h3>
-          <input type="date" id="openInput" class="fieldInput" v-model="openDate" placeholder="Open date"/>
+          <input type="date" id="openInput" class="fieldInput" v-model="newBallot.openDate"/>
         </fieldset>
         <fieldset class="fieldSet row">
           <h3 class="inputLabel">Close date</h3>
-          <input type="date" id="closeInput" class="fieldInput" v-model="closeDate" placeholder="Close date"/>
+          <input type="date" id="closeInput" class="fieldInput" v-model="newBallot.closeDate"/>
         </fieldset>
       </div>
       <fieldset class="center">
@@ -21,21 +21,6 @@
         <router-link to="/dashboard"><div class="cancel button">Cancel</div></router-link>
       </fieldset>
     </form>
-    <div v-else>
-      <div class="grey">
-        <h1>Create a new ballot</h1>
-        <h1 id="ballotTitle">{{newBallot.name}}</h1>
-        <div class="row">
-          <h3 class="inputLabel">Open date</h3>
-          <p>{{formatDate(newBallot.openDate)}}</p>
-        </div>
-        <div class="row">
-          <h3 class="inputLabel">Close date</h3>
-          <p>{{formatDate(newBallot.closeDate)}}</p>
-        </div>
-      </div>
-
-    </div>
     <p v-if="error" class="error">{{error}}</p>
   </div>
 </div>
@@ -43,30 +28,27 @@
 
 <script>
 import axios from 'axios';
-import moment from 'moment';
 export default {
-  name: 'ballotNew',
+  name: 'ballotCreate',
   data() {
     return {
-      ballotName: '',
-      openDate: '',
-      closeDate: '',
-      newBallot: null,
+      newBallot: {
+        name: '',
+        openDate: '',
+        closeDate: '',
+      },
       error: '',
     }
   },
   methods: {
-    formatDate(date) {
-        return moment(date).add(1, 'days').format('MM/DD/YYYY');
-    },
     async submit() {
-      if (!this.ballotName || !this.openDate || !this.closeDate)
+      if (!this.newBallot.name || !this.newBallot.openDate || !this.newBallot.closeDate)
         return;
       try {
         let response = await axios.post('/api/ballots', {
-          name: this.ballotName,
-          openDate: this.openDate,
-          closeDate: this.closeDate,
+          name: this.newBallot.name,
+          openDate: this.newBallot.openDate,
+          closeDate: this.newBallot.closeDate,
         });
         this.newBallot = response.data;
       } catch (error) {

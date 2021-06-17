@@ -42,6 +42,9 @@ app.use("/api/ballots", ballots.routes);
 const candidates = require("./candidates.js");
 app.use("/api/candidates", candidates.routes);
 
+const elections = require("./elections.js");
+app.use("/api/elections", elections.routes);
+
 const measures = require("./measures.js");
 app.use("/api/measures", measures.routes);
 

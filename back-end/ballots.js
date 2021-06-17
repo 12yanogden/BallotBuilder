@@ -45,8 +45,6 @@ router.post('/', async (req, res) => {
     await ballot.save();
     return res.send(ballot);
   } catch (error) {
-    console.log(error);
-    console.log("ballots.js: failed to submit ballot \"" + req.body.name + "\"");
     return res.sendStatus(500);
   }
 });
@@ -57,10 +55,9 @@ router.get('/all', async (req, res) => {
     let ballots = await Ballot.find().sort({
       closeDate: -1
     });
-    
+
     return res.send(ballots);
   } catch (error) {
-    console.log(error);
     return res.sendStatus(500);
   }
 });
@@ -71,11 +68,41 @@ router.get('/:id', async (req, res) => {
     let ballot = await Ballot.findOne({
       _id: req.params.id
     });
-    
+
     return res.send(ballot);
   } catch (error) {
-    console.log(error);
     return res.sendStatus(500);
+  }
+});
+
+// Edit a ballot
+router.put('/:id', async (req, res) => {
+  try {
+    let ballot = await Ballot.findOne({
+      _id: req.params.id
+    });
+
+    ballot.name = req.body.name;
+    ballot.openDate = req.body.openDate;
+    ballot.closeDate = req.body.closeDate;
+    
+    await ballot.save();
+    res.send(ballot);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
+
+// Delete a ballot by its id
+router.delete('/:id', async (req, res) => {
+  try {
+    await Ballot.deleteOne({
+      _id: req.params.id
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(500);
   }
 });
 

@@ -1,56 +1,33 @@
 <template>
 <div class="ballot">
-  <BallotNew v-if="isNew" />
-  <div v-else>
-    <BallotOpen v-if="isOpen(ballot)"/>
-    <BallotClosed v-else />
-  </div>
+  <BallotCreate v-if="action == 'create'"/>
+  <BallotEdit v-else-if="action == 'edit'"/>
+  <BallotVote v-else-if="action == 'vote'"/>
+  <BallotView v-else-if="action == 'view'"/>
+  <p v-else>unrecognized action: {{action}}</p>
 </div>
 </template>
 
 <script>
-import BallotNew from '@/components/BallotNew.vue';
-import BallotOpen from '@/components/BallotOpen.vue';
-import BallotClosed from '@/components/BallotClosed.vue';
-import axios from 'axios';
+import BallotCreate from '@/components/Ballot/BallotCreate.vue';
+import BallotEdit from '@/components/Ballot/BallotEdit.vue';
+import BallotVote from '@/components/Ballot/BallotVote.vue';
+import BallotView from '@/components/Ballot/BallotView.vue';
 export default {
   name: 'ballot',
   components: {
-    BallotNew,
-    BallotOpen,
-    BallotClosed,
+    BallotCreate,
+    BallotEdit,
+    BallotVote,
+    BallotView,
   },
   data() {
     return {
-      isNew: false,
-      ballot: Object,
+      action: '',
     }
   },
   async created() {
-    // Get ballot by id
-    if (this.$route.params.id == "new") {
-      this.isNew = true;
-    } else {
-      try {
-        let response = await axios.get('/api/ballot/' + this.$route.params.id);
-
-        this.ballot = response.data;
-      } catch (error) {
-        console.log("Ballot.vue: failed to get ballot " + this.$route.params.id)
-      }
-    }
+    this.action = this.$route.params.action;
   },
-  method: {
-    isOpen(ballot) {
-      let now = Date.now;
-      let isOpen = false;
-
-      if (ballot.openDate < now && ballot.closeDate > now) {
-        isOpen = true;
-      }
-
-      return isOpen;
-    }
-  }
 }
 </script>
