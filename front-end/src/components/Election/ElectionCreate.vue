@@ -1,24 +1,21 @@
 <template>
-<div id="ballotCreate" class="col">
-  <div id="ballotFormWrapper" class="col">
+<div id="electionCreate" class="col">
+  <div id="electionFormWrapper" class="col">
     <form class="pure-form form col">
-      <h1>Create a new ballot</h1>
+      <h1>Create a new election</h1>
       <fieldset class="fieldSet">
-        <input id="titleInput" v-model="newBallot.name" placeholder="Ballot Title (eg Virgina District 29 Ballot 2021)"/>
+        <input id="titleInput" v-model="newElection.name" placeholder="Office to be elected (eg President)"/>
       </fieldset>
-      <div id="openCloseWrapper" class="col">
-        <fieldset class="fieldSet row">
-          <h3 class="inputLabel">Open date</h3>
-          <input type="date" id="openInput" class="fieldInput" v-model="newBallot.openDate"/>
-        </fieldset>
-        <fieldset class="fieldSet row">
-          <h3 class="inputLabel">Close date</h3>
-          <input type="date" id="closeInput" class="fieldInput" v-model="newBallot.closeDate"/>
-        </fieldset>
-      </div>
+      <fieldset class="fieldSet">
+        <textarea id="descriptionInput" v-model="newElection.description" placeholder="The duties of this office include..."/>
+      </fieldset>
       <fieldset class="center">
-        <button type="submit" class="submit button" @click.prevent="submit">Submit</button>
-        <router-link to="/dashboard"><div class="cancel button">Cancel</div></router-link>
+        <router-link @click.native="submit" :to="{ name: 'ballot', params: { action: 'edit', id: this.newElection.ballot._id }}">
+          <button type="submit" class="submit button">Submit</button>
+        </router-link>
+        <router-link :to="{ name: 'ballot', params: { action: 'edit', id: this.newElection.ballot._id }}">
+          <div class="cancel button">Cancel</div>
+        </router-link>
       </fieldset>
     </form>
     <p v-if="error" class="error">{{error}}</p>
@@ -29,38 +26,52 @@
 <script>
 import axios from 'axios';
 export default {
-  name: 'ballotCreate',
+  name: 'electionCreate',
   data() {
     return {
-      newBallot: {
+      newElection: {
         name: '',
-        openDate: '',
-        closeDate: '',
+        description: '',
+        ballot: Object,
       },
       error: '',
     }
   },
   methods: {
     async submit() {
-      if (!this.newBallot.name || !this.newBallot.openDate || !this.newBallot.closeDate)
+      if (!this.newElection.name)
         return;
       try {
-        let response = await axios.post('/api/ballots', {
-          name: this.newBallot.name,
-          openDate: this.newBallot.openDate,
-          closeDate: this.newBallot.closeDate,
+        let response = await axios.post('/api/elections', {
+          name: this.newElection.name,
+          description: this.newElection.description,
+          ballot: this.newElection.ballot,
         });
-        this.newBallot = response.data;
+
+        return response.data;
       } catch (error) {
         this.error = error.response.data.message;
       }
     },
-  }
+    async getBallot() {
+      try {
+        let response = await axios.get("/api/ballots/" + this.$route.params.id);
+        this.newElection.ballot = response.data;
+
+        return true;
+      } catch (error) {
+        this.error = error;
+      }
+    },
+  },
+  async created() {
+    await this.getBallot();
+  },
 }
 </script>
 
 <style scoped>
-#ballotFormWrapper {
+#electionFormWrapper {
   width: 50%;
   align-items: flex-start;
 }
@@ -92,6 +103,11 @@ export default {
   font-size: 36pt;
 }
 
+#descriptionInput {
+  width: 100%;
+  height: 10em;
+}
+
 #openCloseWrapper {
   justify-content: space-between;
   width: 100%;
@@ -115,7 +131,7 @@ export default {
   color: grey;
 }
 
-#ballotTitle {
+#electionTitle {
   font-size: 36pt;
   text-align: left;
 }

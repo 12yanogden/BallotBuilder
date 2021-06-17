@@ -17,7 +17,7 @@
         </fieldset>
       </div>
       <fieldset class="center">
-        <button type="submit" class="submit button" @click.prevent="submit">Submit</button>
+        <router-link @click.native="submit" to="/dashboard"><button type="submit" class="submit button">Submit</button></router-link>
         <router-link to="/dashboard"><div class="cancel button">Cancel</div></router-link>
       </fieldset>
     </form>

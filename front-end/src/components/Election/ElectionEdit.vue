@@ -25,7 +25,7 @@
   <p v-if="error" class="error">{{error}}</p>
   <div class="row">
     <h1>Elections</h1>
-    <router-link :to="{ name: 'election', params: { action: 'create', id: this.ballot._id }}"><i class="fas fa-plus-circle addIcon"></i></router-link>
+    <router-link :to="{ name: 'election', params: { action: 'create', ballotId: this.ballot._id }}"><i class="fas fa-plus-circle addIcon"></i></router-link>
   </div>
   <div class="recordsBox card">
     <div class="records center" v-for="election in elections" :key="election.id">
@@ -42,7 +42,7 @@
   </div>
   <div class="row">
     <h1>Measures</h1>
-    <router-link :to="{ name: 'measure', params: { action: 'create', id: this.ballot._id }}"><i class="fas fa-plus-circle addIcon"></i></router-link>
+    <router-link to="/measure/create/new"><i class="fas fa-plus-circle addIcon"></i></router-link>
   </div>
   <div class="recordsBox card">
     <div class="records center" v-for="measure in measures" :key="measure.id">
@@ -102,6 +102,8 @@ export default {
         this.ballot.openDate = this.formatDate(this.ballot.openDate);
         this.ballot.closeDate = this.formatDate(this.ballot.closeDate);
 
+        console.log("ballot before: " + this.ballot);
+
         return true;
       } catch (error) {
         this.error = error;
@@ -142,6 +144,7 @@ export default {
   },
   async created() {
     await this.getBallot();
+    console.log("ballot after: " + this.ballot);
     this.getElections();
     this.getMeasures();
   }

@@ -130,9 +130,29 @@ export default {
       }
     },
     async remove(ballot) {
-      console.log(ballot);
-
       try {
+        let elections = await axios.get("/api/elections/byBallot/" + ballot.ballot._id);
+        let measures = await axios.get("/api/measures/byBallot/" + ballot.ballot._id);
+        let candidates = [];
+
+        for (let i = 0; i < elections.length; i++) {
+          let electionCandidates = await axios.get("/api/candidates/ByElection/" + elections[i]._id);
+          
+          candidates = candidates.concat(electionCandidates);
+        }
+
+        for (let i = 0; i < candidates.length; i++) {
+          await axios.delete("/api/candidates/" + candidates[i]._id);
+        }
+
+        for (let i = 0; i < elections.length; i++) {
+          await axios.delete("/api/elections/" + elections[i]._id);
+        }
+
+        for (let i = 0; i < measures.length; i++) {
+          await axios.delete("/api/measures/" + measures[i]._id);
+        }
+
         await axios.delete("/api/ballots/" + ballot.ballot._id);
         this.getBallots();
         
