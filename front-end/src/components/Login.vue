@@ -53,16 +53,16 @@ export default {
       if (!this.firstName || !this.lastName || !this.username || !this.password)
         return;
       try {
-        let response = await axios.post('/api/voters', {
+        let response = await axios.post('/api/builders', {
           firstName: this.firstName,
           lastName: this.lastName,
           username: this.username,
           password: this.password,
         });
-        this.$root.$data.voter = response.data.voter;
+        this.$root.$data.builder = response.data.builder;
       } catch (error) {
         this.error = error.response.data.message;
-        this.$root.$data.voter = null;
+        this.$root.$data.builder = null;
       }
     },
     async login() {
@@ -71,14 +71,14 @@ export default {
       if (!this.loginUsername || !this.loginPassword)
         return;
       try {
-        let response = await axios.post('/api/voters/login', {
+        let response = await axios.post('/api/builders/login', {
           username: this.loginUsername,
           password: this.loginPassword,
         });
-        this.$root.$data.voter = response.data.voter;
+        this.$root.$data.builder = response.data.builder;
       } catch (error) {
         this.errorLogin = "Error: " + error.response.data.message;
-        this.$root.$data.voter = null;
+        this.$root.$data.builder = null;
       }
     },
   }

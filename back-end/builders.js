@@ -3,18 +3,14 @@ const mongoose = require('mongoose');
 const argon2 = require("argon2");
 const router = express.Router();
 
-const voterSchema = new mongoose.Schema({
+const builderSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   username: String,
   password: String,
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
 });
 
-voterSchema.pre('save', async function(next) {
+builderSchema.pre('save', async function(next) {
   if (!this.isModified('password'))
     return next();
 
@@ -29,7 +25,7 @@ voterSchema.pre('save', async function(next) {
   }
 });
 
-voterSchema.methods.comparePassword = async function(password) {
+builderSchema.methods.comparePassword = async function(password) {
   try {
     const isMatch = await argon2.verify(this.password, password);
     
@@ -39,35 +35,35 @@ voterSchema.methods.comparePassword = async function(password) {
   }
 };
 
-voterSchema.methods.toJSON = function() {
+builderSchema.methods.toJSON = function() {
   var obj = this.toObject();
   delete obj.password;
   
   return obj;
 }
 
-const Voter = mongoose.model('Voter', voterSchema);
+const Builder = mongoose.model('Builder', builderSchema);
 
 // Middleware
-const validVoter = async (req, res, next) => {
-  if (!req.session.voterID)
+const validBuilder = async (req, res, next) => {
+  if (!req.session.builderID)
     return res.status(403).send({
-      message: "No voter is logged in"
+      message: "No builder is logged in"
     });
   try {
-    const voter = await Voter.findOne({
-      _id: req.session.voterID
+    const builder = await Builder.findOne({
+      _id: req.session.builderID
     });
-    if (!voter) {
+    if (!builder) {
       return res.status(403).send({
-        message: "No voter is logged in"
+        message: "No builder is logged in"
       });
     }
  
-    req.voter = voter;
+    req.builder = builder;
   } catch (error) {
     return res.status(403).send({
-      message: "No voter is logged in"
+      message: "No builder is logged in"
     });
   }
 
@@ -101,28 +97,28 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const existingVoter = await Voter.findOne({
+    const existingBuilder = await Builder.findOne({
       username: req.body.username
     });
 
-    if (existingVoter) {
+    if (existingBuilder) {
       return res.status(403).send({
         message: "username \"" + req.body.username + "\" already exists"
       });
     }
 
-    const voter = new Voter({
+    const builder = new Builder({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       username: req.body.username,
       password: req.body.password
     });
 
-    await voter.save();
-    req.session.voterID = voter._id;
+    await builder.save();
+    req.session.builderID = builder._id;
 
     return res.send({
-      voter: voter
+      builder: builder
     });
   } catch (error) {
     console.log(error);
@@ -145,24 +141,24 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    const voter = await Voter.findOne({
+    const builder = await Builder.findOne({
       username: req.body.username
     });
 
-    if (!voter)
+    if (!builder)
       return res.status(403).send({
-        message: "username \"" + req.body.username + "\" or password \"" + req.body.password + "\" is wrong"
+        message: "username or password is wrong"
       });
 
-    if (!await voter.comparePassword(req.body.password))
+    if (!await builder.comparePassword(req.body.password))
       return res.status(403).send({
-        message: "username \"" + req.body.username + "\" or password \"" + req.body.password + "\" is wrong"
+        message: "username or password is wrong"
       });
 
-    req.session.voterID = voter._id;
+    req.session.builderID = builder._id;
 
     return res.send({
-      voter: voter
+      builder: builder
     });
 
   } catch (error) {
@@ -171,10 +167,10 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/', validVoter, async (req, res) => {
+router.get('/', validBuilder, async (req, res) => {
   try {
     res.send({
-      voter: req.voter
+      builder: req.builder
     });
   } catch (error) {
     console.log(error);
@@ -182,25 +178,8 @@ router.get('/', validVoter, async (req, res) => {
   }
 });
 
-router.put('/admin/:id', async (req, res) => {
-  try {
-    let voter = await Voter.findOne({
-      _id: req.params.id
-    });
-
-    voter.isAdmin = true;
-    await voter.save();
-    
-    res.sendStatus(200);
-    res.send(voter);
-  } catch (error) {
-    console.log(error);
-    return res.sendStatus(500);
-  }
-});
-
-// Logs the voter out
-router.delete("/", validVoter, async (req, res) => {
+// Logs the builder out
+router.delete("/", validBuilder, async (req, res) => {
   try {
     req.session = null;
     res.sendStatus(200);
@@ -212,6 +191,6 @@ router.delete("/", validVoter, async (req, res) => {
 
 module.exports = {
   routes: router,
-  model: Voter,
-  valid: validVoter
+  model: Builder,
+  valid: validBuilder
 };

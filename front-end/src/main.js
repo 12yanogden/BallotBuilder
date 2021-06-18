@@ -5,7 +5,7 @@ import router from './router'
 Vue.config.productionTip = false
 
 let data = {
-  voter: null
+  builder: null
 }
 
 new Vue({

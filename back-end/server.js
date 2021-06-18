@@ -45,10 +45,7 @@ app.use("/api/candidates", candidates.routes);
 const measures = require("./measures.js");
 app.use("/api/measures", measures.routes);
 
-const voters = require("./voters.js");
-app.use("/api/voters", voters.routes);
-
-const votes = require("./votes.js");
-app.use("/api/votes", votes.routes);
+const builders = require("./builders.js");
+app.use("/api/builders", builders.routes);
 
 app.listen(3000, () => console.log('Server listening on port 3000!'));

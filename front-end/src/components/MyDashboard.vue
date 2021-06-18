@@ -81,8 +81,8 @@ export default {
     }
   },
   computed: {
-    voter() {
-      return this.$root.$data.voter;
+    builder() {
+      return this.$root.$data.builder;
     },
     hasNextBallots() {
       let hasNextBallots = true;
