@@ -52,6 +52,7 @@ export default {
           name: this.newBallot.name,
           openDate: this.newBallot.openDate,
           closeDate: this.newBallot.closeDate,
+          builder: this.$root.$data.builder,
         });
         this.newBallot = response.data;
       } catch (error) {

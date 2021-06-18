@@ -134,6 +134,14 @@ export default {
     },
     async removeMeasure(measure) {
       try {
+        if (measure.isElection) {
+          let candidates = await axios.get("/api/candidates/ByMeasure/" + measure._id);
+
+          for (let i = 0; i < candidates.length; i++) {
+            await axios.delete("/api/candidates/" + candidates[i]._id);
+          }
+        }
+
         let response = await axios.delete('/api/measures/' + measure._id);
 
         this.getMeasures();

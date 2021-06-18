@@ -7,7 +7,7 @@
     </div>
     <div class="ballotsBox card">
       <div v-if="hasNextBallots" style="width: 100%;">
-        <div class="ballots center" v-for="openBallot in openBallots" :key="openBallot.id">
+        <div class="ballots center" v-for="openBallot in openBallots" :key="openBallot._id">
           <div class="ballot row">
             <div class="ballotLeft row">
               <div class="ballotStatus openStatus">{{openBallot.status}}</div>
@@ -17,12 +17,13 @@
               <div class="ballotName">{{openBallot.ballot.name}}</div>
             </div>
             <div class="ballotRight row">
-              <router-link :to="{ name: 'ballot', params: { action: 'edit', id: openBallot.ballot._id }}"><i class="far fa-edit editIcon"></i></router-link>
-              <i class="far fa-trash-alt pointer" @click.prevent="remove(openBallot)"></i>
+              <router-link :to="{ name: 'ballot', params: { action: 'view', id: openBallot.ballot._id }}"><i class="fa fa-print viewIcon" aria-hidden="true"></i></router-link>
+              <router-link v-if="isOwner(openBallot)" :to="{ name: 'ballot', params: { action: 'edit', id: openBallot.ballot._id }}"><i class="far fa-edit editIcon"></i></router-link>
+              <i v-if="isOwner(openBallot)" class="far fa-trash-alt pointer" @click.prevent="remove(openBallot)"></i>
             </div>
           </div>
         </div>
-        <div class="ballots center" v-for="upcomingBallot in upcomingBallots" :key="upcomingBallot.id">
+        <div class="ballots center" v-for="upcomingBallot in upcomingBallots" :key="upcomingBallot._id">
           <div class="ballot row">
             <div class="ballotLeft row">
               <div class="ballotStatus upcomingStatus">{{upcomingBallot.status}}</div>
@@ -32,8 +33,9 @@
               <div class="ballotName">{{upcomingBallot.ballot.name}}</div>
             </div>
             <div class="ballotRight row">
-              <router-link :to="{ name: 'ballot', params: { action: 'edit', id: upcomingBallot.ballot._id }}"><i class="far fa-edit editIcon"></i></router-link>
-              <i class="far fa-trash-alt pointer" @click.prevent="remove(upcomingBallot)"></i>
+              <router-link :to="{ name: 'ballot', params: { action: 'view', id: upcomingBallot.ballot._id }}"><i class="fa fa-print viewIcon" aria-hidden="true"></i></router-link>
+              <router-link v-if="isOwner(upcomingBallot)" :to="{ name: 'ballot', params: { action: 'edit', id: upcomingBallot.ballot._id }}"><i class="far fa-edit editIcon"></i></router-link>
+              <i v-if="isOwner(upcomingBallot)" class="far fa-trash-alt pointer" @click.prevent="remove(upcomingBallot)"></i>
             </div>
           </div>
         </div>
@@ -45,7 +47,7 @@
     <h1>Closed Ballots</h1>
     <div class="ballotsBox card">
       <div v-if="closedBallots.length > 0" style="width: 100%;">
-        <div class="ballots center" v-for="closedBallot in closedBallots" :key="closedBallot.id">
+        <div class="ballots center" v-for="closedBallot in closedBallots" :key="closedBallot._id">
           <div class="ballot row">
             <div class="ballotLeft row">
               <div class="ballotStatus closedStatus">{{closedBallot.status}}</div>
@@ -55,8 +57,9 @@
               <div class="ballotName">{{closedBallot.ballot.name}}</div>
             </div>
             <div class="ballotRight row">
-              <router-link :to="{ name: 'ballot', params: { action: 'edit', id: closedBallot.ballot._id }}"><i class="far fa-edit editIcon"></i></router-link>
-              <i class="far fa-trash-alt pointer" @click.prevent="remove(closedBallot)"></i>
+              <router-link :to="{ name: 'ballot', params: { action: 'view', id: closedBallot.ballot._id }}"><i class="fa fa-print viewIcon" aria-hidden="true"></i></router-link>
+              <router-link v-if="isOwner(closedBallot)" :to="{ name: 'ballot', params: { action: 'edit', id: closedBallot.ballot._id }}"><i class="far fa-edit editIcon"></i></router-link>
+              <i v-if="isOwner(closedBallot)" class="far fa-trash-alt pointer" @click.prevent="remove(closedBallot)"></i>
             </div>
           </div>
         </div>
@@ -95,6 +98,9 @@ export default {
     },
   },
   methods: {
+    isOwner(ballot) {
+      return (ballot.ballot.builder._id == this.$root.$data.builder._id);
+    },
     formatDate(date) {
       return moment(date).add(1, 'day').format('MM/DD/YYYY');
     },
@@ -103,6 +109,8 @@ export default {
       let openDate = new Date(ballot.openDate).getTime();
       let closeDate = new Date(ballot.closeDate).getTime();
       let status = "closed";
+
+      console.log("comparing: " + openDate + " with " + now + " with " + closeDate);
 
       if (openDate < now && closeDate > now) {
         status = "open";
@@ -120,6 +128,8 @@ export default {
         this.openBallots = [];
         this.upcomingBallots = [];
         this.closedBallots = [];
+
+        console.log(ballots);
 
         for (let i = 0; i < ballots.length; i++) {
           let ballot = ballots[i];
@@ -152,22 +162,17 @@ export default {
     async remove(ballot) {
       try {
         let measures = await axios.get("/api/measures/byBallot/" + ballot.ballot._id);
-        let candidates = [];
-
-        for (let i = 0; i < candidates.length; i++) {
-          await axios.delete("/api/candidates/" + candidates[i]._id);
-        }
 
         for (let i = 0; i < measures.length; i++) {
           if (measures[i].isElection) {
-            let electionCandidates = await axios.get("/api/candidates/ByMeasure/" + measures[i]._id);
-          
-            candidates = candidates.concat(electionCandidates);
+            let candidates = await axios.get("/api/candidates/ByMeasure/" + measures[i]._id);
+
+            for (let i = 0; i < candidates.length; i++) {
+              await axios.delete("/api/candidates/" + candidates[i]._id);
+            }
           }
           
           await axios.delete("/api/measures/" + measures[i]._id);
-
-
         }
 
         await axios.delete("/api/ballots/" + ballot.ballot._id);
@@ -242,7 +247,7 @@ export default {
   margin: 0 0 0 0.5em;
 }
 
-.voteIcon {
+.viewIcon {
   color: black;
   cursor: pointer;
   margin: 0 0.5em 0 0; 
