@@ -107,6 +107,36 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Edit a measure
+router.put('/:id', async (req, res) => {
+  try {
+    let measure = await Measure.findOne({
+      _id: req.params.id
+    }).populate('ballot');
+
+    measure.name = req.body.name;
+    measure.description = req.body.description;
+    
+    await measure.save();
+    res.send(measure);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
+
+// Delete a measure by its id
+router.delete('/:id', async (req, res) => {
+  try {
+    await Measure.deleteOne({
+      _id: req.params.id
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
+
 module.exports = {
   model: Measure,
   routes: router,
