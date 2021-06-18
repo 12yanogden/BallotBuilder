@@ -110,8 +110,6 @@ export default {
         status = "upcoming";
       }
 
-      console.log(status)
-
       return status;
     },
     async getBallots() {

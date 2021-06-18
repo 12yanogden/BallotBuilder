@@ -43,7 +43,9 @@ export default {
   },
   methods: {
     async submit() {
-      if (!this.newBallot.name || !this.newBallot.openDate || !this.newBallot.closeDate || this.newBallot.openDate.getTime() > this.newBallot.closeDate.getTime())
+      let openDate = new Date(this.newBallot.openDate);
+      let closeDate = new Date(this.newBallot.closeDate);
+      if (!this.newBallot.name || !this.newBallot.openDate || !this.newBallot.closeDate || openDate.getTime() > closeDate.getTime())
         return;
       try {
         let response = await axios.post('/api/ballots', {
