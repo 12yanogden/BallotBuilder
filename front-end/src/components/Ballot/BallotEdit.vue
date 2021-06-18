@@ -25,7 +25,7 @@
   <p v-if="error" class="error">{{error}}</p>
   <div class="row">
     <h1>Elections</h1>
-    <router-link :to="{ name: 'election', params: { action: 'create', id: this.ballot._id }}"><i class="fas fa-plus-circle addIcon"></i></router-link>
+    <router-link :to="{ name: 'measure', params: { action: 'createElection', id: this.ballot._id }}"><i class="fas fa-plus-circle addIcon"></i></router-link>
   </div>
   <div class="recordsBox card">
     <div class="records center" v-for="election in elections" :key="election.id">
@@ -34,15 +34,15 @@
           <div class="recordName">{{election.name}}</div>
         </div>
         <div class="recordRight row">
-          <router-link :to="{ name: 'election', params: { action: 'edit', id: election._id }}"><i class="far fa-edit editIcon"></i></router-link>
-          <i class="far fa-trash-alt pointer" @click.prevent="remove(election)"></i>
+          <router-link :to="{ name: 'measure', params: { action: 'edit', id: election._id }}"><i class="far fa-edit editIcon"></i></router-link>
+          <i class="far fa-trash-alt pointer" @click.prevent="removeMeasure(election)"></i>
         </div>
       </div>
     </div>
   </div>
   <div class="row">
     <h1>Measures</h1>
-    <router-link :to="{ name: 'measure', params: { action: 'create', id: this.ballot._id }}"><i class="fas fa-plus-circle addIcon"></i></router-link>
+    <router-link :to="{ name: 'measure', params: { action: 'createMeasure', id: this.ballot._id }}"><i class="fas fa-plus-circle addIcon"></i></router-link>
   </div>
   <div class="recordsBox card">
     <div class="records center" v-for="measure in measures" :key="measure.id">
@@ -52,7 +52,7 @@
         </div>
         <div class="recordRight row">
           <router-link :to="{ name: 'measure', params: { action: 'edit', id: measure._id }}"><i class="far fa-edit editIcon"></i></router-link>
-          <i class="far fa-trash-alt pointer" @click.prevent="remove(measure)"></i>
+          <i class="far fa-trash-alt pointer" @click.prevent="removeMeasure(measure)"></i>
         </div>
       </div>
     </div>
@@ -67,7 +67,11 @@ export default {
   name: 'ballotEdit',
   data() {
     return {
-      ballot: null,
+      ballot: {
+        name: '',
+        openDate: moment(new Date()).format('YYYY-MM-DD'),
+        closeDate: moment(new Date()).format('YYYY-MM-DD'),
+      },
       elections: [],
       measures: [],
       error: '',
@@ -107,31 +111,20 @@ export default {
         this.error = error;
       }
     },
-    async getElections() {
-      try {
-        let response = await axios.get("/api/elections/byBallot/" + this.ballot._id);
-        let elections = response.data;
-
-        this.elections = [];
-
-        for (let i = 0; i < elections.length; i++) {
-          this.elections.push(elections[i]);
-        }
-
-        return true;
-      } catch (error) {
-        this.error = error;
-      }
-    },
     async getMeasures() {
       try {
         let response = await axios.get("/api/measures/byBallot/" + this.ballot._id);
         let measures = response.data;
 
+        this.elections = [];
         this.measures = [];
 
         for (let i = 0; i < measures.length; i++) {
-          this.measures.push(measures[i]);
+          if (measures[i].isElection) {
+            this.elections.push(measures[i]);
+          } else {
+            this.measures.push(measures[i]);
+          }
         }
 
         return true;
@@ -139,11 +132,20 @@ export default {
         this.error = error;
       }
     },
+    async removeMeasure(measure) {
+      try {
+        let response = await axios.delete('/api/measures/' + measure._id);
+
+        this.getMeasures();
+        return response.data;
+      } catch (error) {
+        this.error = error.response.data.message;
+      }
+    }
   },
   async created() {
     await this.getBallot();
-    this.getElections();
-    this.getMeasures();
+    await this.getMeasures();
   }
 }
 </script>
@@ -200,10 +202,6 @@ export default {
   border: 1px solid #B42033;
 }
 
-.grey {
-  color: grey;
-}
-
 #ballotTitle {
   font-size: 36pt;
   text-align: left;
@@ -231,6 +229,7 @@ export default {
 .record {
   justify-content: space-between;
   width: 90%;
+  padding: 0.5em;
   border-bottom: 1px solid #D9D9D9;
 }
 

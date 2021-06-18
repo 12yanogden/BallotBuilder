@@ -12,6 +12,7 @@ const measureSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Ballot'
   },
+  isElection: Boolean,
 });
 
 const Measure = mongoose.model('Measure', measureSchema);
@@ -37,10 +38,17 @@ router.post('/', async (req, res) => {
     });
   }
 
+  if (req.body.isElection == null) {
+    return res.status(400).send({
+      message: "measures.js: invalid isElection \"" + req.body.isElection + "\""
+    });
+  }
+
   let measure = new Measure({
     name: req.body.name,
     description: req.body.description,
     ballot: req.body.ballot,
+    isElection: req.body.isElection,
   });
 
   try {

@@ -2,8 +2,8 @@
 <div class="login">
   <div class="loginBox card">
     <form class="pure-form">
+      <h1>Register or Login</h1>
       <fieldset>
-        <legend>Register for an account</legend>
         <input v-model="firstName" placeholder="First Name">
         <input v-model="lastName" placeholder="Last Name">
       </fieldset>
@@ -18,7 +18,6 @@
     <p v-if="error" class="error">{{error}}</p>
     <form class="space-above pure-form">
       <fieldset>
-        <legend>Login</legend>
         <input placeholder="username" v-model="loginUsername">
         <input type="password" placeholder="password" v-model="loginPassword">
       </fieldset>
@@ -111,10 +110,6 @@ h1 {
 
 .login form {
   font-size: 16px;
-}
-
-.login form legend {
-  font-size: 20px;
 }
 
 input {

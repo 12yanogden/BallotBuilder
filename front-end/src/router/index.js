@@ -3,7 +3,6 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Ballot from '../views/Ballot.vue'
-import Election from '../views/Election.vue'
 import Measure from '../views/Measure.vue'
 
 Vue.use(VueRouter)
@@ -23,11 +22,6 @@ const routes = [
     path: '/ballot/:action/:id',
     name: 'ballot',
     component: Ballot
-  },
-  {
-    path: '/election/:action/:id',
-    name: 'election',
-    component: Election
   },
   {
     path: '/measure/:action/:id',

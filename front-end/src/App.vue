@@ -4,7 +4,7 @@
       <nav>
         <router-link to="/" class="logo">
           <i class="fa fa-paper-plane fa-4x"></i>
-          <h1>VoteNow</h1>
+          <h1>BallotBuilder</h1>
         </router-link>
         <div>
           <router-link to="/dashboard"><i class="fas fa-user"></i></router-link>
@@ -202,7 +202,7 @@ html, body, .app {
 
 .error {
   display: inline;
-  border-radius: 30px;
+  border-radius: 10px;
   font-size: 10px;
   background-color: #B42033;
   color: white;

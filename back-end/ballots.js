@@ -2,9 +2,6 @@ const mongoose = require('mongoose');
 const express = require("express");
 const router = express.Router();
 
-const elections = require("./elections.js");
-const Election = elections.model;
-
 const ballotSchema = new mongoose.Schema({
   name: String,
   openDate: Date,

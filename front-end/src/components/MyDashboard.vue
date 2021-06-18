@@ -3,7 +3,7 @@
   <div class="ballotsModule col">
     <div class="row">
       <h1>Open and Upcoming Ballots</h1>
-      <router-link to="/ballot/create/new" v-if="isAdmin"><i class="fas fa-plus-circle addIcon"></i></router-link>
+      <router-link to="/ballot/create/new"><i class="fas fa-plus-circle addIcon"></i></router-link>
     </div>
     <div class="ballotsBox card">
       <div v-if="hasNextBallots" style="width: 100%;">
@@ -17,14 +17,25 @@
               <div class="ballotName">{{openBallot.ballot.name}}</div>
             </div>
             <div class="ballotRight row">
-              <router-link :to="{ name: 'ballot', params: { action: 'vote', id: openBallot.ballot._id }}"><i class="fas fa-check voteIcon"></i></router-link>
-              <router-link :to="{ name: 'ballot', params: { action: 'edit', id: openBallot.ballot._id }}"><i v-if="isAdmin" class="far fa-edit editIcon"></i></router-link>
-              <i v-if="isAdmin" class="far fa-trash-alt pointer" @click.prevent="remove(openBallot)"></i>
+              <router-link :to="{ name: 'ballot', params: { action: 'edit', id: openBallot.ballot._id }}"><i class="far fa-edit editIcon"></i></router-link>
+              <i class="far fa-trash-alt pointer" @click.prevent="remove(openBallot)"></i>
             </div>
           </div>
         </div>
-        <div class="ballots" v-for="upcomingBallot in upcomingBallots" :key="upcomingBallot.id">
-          {{upcomingBallot.name}}
+        <div class="ballots center" v-for="upcomingBallot in upcomingBallots" :key="upcomingBallot.id">
+          <div class="ballot row">
+            <div class="ballotLeft row">
+              <div class="ballotStatus upcomingStatus">{{upcomingBallot.status}}</div>
+              <div class="ballotDate">{{formatDate(upcomingBallot.ballot.openDate)}}</div>
+              <p class="ballotDate">-</p>
+              <div class="ballotDate">{{formatDate(upcomingBallot.ballot.closeDate)}}</div>
+              <div class="ballotName">{{upcomingBallot.ballot.name}}</div>
+            </div>
+            <div class="ballotRight row">
+              <router-link :to="{ name: 'ballot', params: { action: 'edit', id: upcomingBallot.ballot._id }}"><i class="far fa-edit editIcon"></i></router-link>
+              <i class="far fa-trash-alt pointer" @click.prevent="remove(upcomingBallot)"></i>
+            </div>
+          </div>
         </div>
       </div>
       <p v-else>There are no open or upcoming ballots</p>
@@ -33,9 +44,21 @@
   <div class="ballotsModule col">
     <h1>Closed Ballots</h1>
     <div class="ballotsBox card">
-      <div v-if="closedBallots.length > 0">
-        <div class="ballots" v-for="closedBallot in closedBallots" :key="closedBallot.id">
-          {{closedBallot.name}}
+      <div v-if="closedBallots.length > 0" style="width: 100%;">
+        <div class="ballots center" v-for="closedBallot in closedBallots" :key="closedBallot.id">
+          <div class="ballot row">
+            <div class="ballotLeft row">
+              <div class="ballotStatus closedStatus">{{closedBallot.status}}</div>
+              <div class="ballotDate">{{formatDate(closedBallot.ballot.openDate)}}</div>
+              <p class="ballotDate">-</p>
+              <div class="ballotDate">{{formatDate(closedBallot.ballot.closeDate)}}</div>
+              <div class="ballotName">{{closedBallot.ballot.name}}</div>
+            </div>
+            <div class="ballotRight row">
+              <router-link :to="{ name: 'ballot', params: { action: 'edit', id: closedBallot.ballot._id }}"><i class="far fa-edit editIcon"></i></router-link>
+              <i class="far fa-trash-alt pointer" @click.prevent="remove(closedBallot)"></i>
+            </div>
+          </div>
         </div>
       </div>
       <p v-else>There are no closed ballots</p>
@@ -70,18 +93,15 @@ export default {
 
       return hasNextBallots;
     },
-    isAdmin() {
-      return this.$root.$data.voter.isAdmin
-    }
   },
   methods: {
     formatDate(date) {
       return moment(date).add(1, 'day').format('MM/DD/YYYY');
     },
     calcBallotStatus(ballot) {
-      let now = new Date();
-      let openDate = new Date(ballot.openDate);
-      let closeDate = new Date(ballot.closeDate);
+      let now = new Date().getTime();
+      let openDate = new Date(ballot.openDate).getTime();
+      let closeDate = new Date(ballot.closeDate).getTime();
       let status = "closed";
 
       if (openDate < now && closeDate > now) {
@@ -89,6 +109,8 @@ export default {
       } else if (openDate > now) {
         status = "upcoming";
       }
+
+      console.log(status)
 
       return status;
     },
@@ -131,26 +153,23 @@ export default {
     },
     async remove(ballot) {
       try {
-        let elections = await axios.get("/api/elections/byBallot/" + ballot.ballot._id);
         let measures = await axios.get("/api/measures/byBallot/" + ballot.ballot._id);
         let candidates = [];
-
-        for (let i = 0; i < elections.length; i++) {
-          let electionCandidates = await axios.get("/api/candidates/ByElection/" + elections[i]._id);
-          
-          candidates = candidates.concat(electionCandidates);
-        }
 
         for (let i = 0; i < candidates.length; i++) {
           await axios.delete("/api/candidates/" + candidates[i]._id);
         }
 
-        for (let i = 0; i < elections.length; i++) {
-          await axios.delete("/api/elections/" + elections[i]._id);
-        }
-
         for (let i = 0; i < measures.length; i++) {
+          if (measures[i].isElection) {
+            let electionCandidates = await axios.get("/api/candidates/ByMeasure/" + measures[i]._id);
+          
+            candidates = candidates.concat(electionCandidates);
+          }
+          
           await axios.delete("/api/measures/" + measures[i]._id);
+
+
         }
 
         await axios.delete("/api/ballots/" + ballot.ballot._id);
@@ -195,6 +214,7 @@ export default {
 }
 
 .ballotStatus {
+  min-width: 5em;
   color: white;
   padding: 0.5em;
   border-radius: 10%;

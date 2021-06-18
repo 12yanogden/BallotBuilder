@@ -6,10 +6,10 @@
     </video>
     <h1 class="bannerLabel" id="bannerLabel1">Make your voice</h1>
     <h1 class="bannerLabel" id="bannerLabel2">HEARD</h1>
-    <router-link to="/dashboard"><div class="button">Vote Now</div></router-link>
+    <router-link to="/dashboard"><div class="button">Build your ballot</div></router-link>
   </div>
   <div id="whyRow" class="section">
-    <h1 id="whyStatement">Why use VoteNow?</h1>
+    <h1 id="whyStatement">Why use BallotBuilder?</h1>
     <div class="row">
       <div class="whyReason col">
         <i class="fa fa-lock fa-4x whyReasonIcon" aria-hidden="true"></i>
@@ -19,48 +19,26 @@
       <div class="whyReason col">
         <i class="fa fa-thumbs-up fa-4x whyReasonIcon" aria-hidden="true"></i>
         <h2>Easy</h2>
-        <p>No hastle on election day! You can cast your ballot instantly and from anywhere.</p>
+        <p>No hastle! You can build your ballot instantly and from anywhere.</p>
       </div>
       <div class="whyReason col">
         <i class="fa fa-university fa-4x whyReasonIcon" aria-hidden="true"></i>
         <h2>Reliable</h2>
-        <p>No lost ballots and no recounts. Your ballot is counted the moment it's submitted.</p>
+        <p>No lost ballots. Your ballot is accessible at all times.</p>
       </div>
     </div>
   </div>
-  <div id="candidateRow" class="section">
-    <form class="pure-form row" id="candidateSearch">
-      <fieldset id="searchInputFieldSet">
-        <input id="searchInput" v-model="findCandidate" placeholder="Find a candidate">
-        <div class="suggestions" v-if="suggestions.length > 0">
-          <div class="suggestion" v-for="suggestion in suggestions" :key="suggestion.id" @click="selectCandidate(suggestion)">
-            {{suggestion.name}}
-          </div>
-        </div>
-      </fieldset>
-      <fieldset>
-        <button type="submit" class="button" id="searchButton" @click.prevent="findCandidate">Search</button>
-      </fieldset>
-    </form>
-  </div>
-  
 </div>
 </template>
 
 <script>
 import axios from 'axios';
 export default {
-  name: 'Admin',
+  name: 'Home',
   data() {
     return {
       candidates: [],
       findCandidate: "",
-    }
-  },
-  computed: {
-    suggestions() {
-      let candidates = this.candidates.filter(candidate => candidate.name.toLowerCase().startsWith(this.findCandidate.toLowerCase()));
-      return candidates.sort((a, b) => a.name > b.name);
     }
   },
   created() {

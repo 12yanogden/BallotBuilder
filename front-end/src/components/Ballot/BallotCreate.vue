@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 import axios from 'axios';
 export default {
   name: 'ballotCreate',
@@ -34,15 +35,15 @@ export default {
     return {
       newBallot: {
         name: '',
-        openDate: '',
-        closeDate: '',
+        openDate: moment(new Date()).format('YYYY-MM-DD'),
+        closeDate: moment(new Date()).format('YYYY-MM-DD'),
       },
       error: '',
     }
   },
   methods: {
     async submit() {
-      if (!this.newBallot.name || !this.newBallot.openDate || !this.newBallot.closeDate)
+      if (!this.newBallot.name || !this.newBallot.openDate || !this.newBallot.closeDate || this.newBallot.openDate.getTime() > this.newBallot.closeDate.getTime())
         return;
       try {
         let response = await axios.post('/api/ballots', {
@@ -109,10 +110,6 @@ export default {
   color: #B42033;
   background-color: transparent;
   border: 1px solid #B42033;
-}
-
-.grey {
-  color: grey;
 }
 
 #ballotTitle {
